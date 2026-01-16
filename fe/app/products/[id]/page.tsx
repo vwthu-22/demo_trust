@@ -28,7 +28,7 @@ export default function ProductDetailPage() {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const response = await fetch(`http://localhost:3001/products/${params.id}`);
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://naisube.vercel.app'}/products/${params.id}`);
                 if (!response.ok) {
                     throw new Error('Product not found');
                 }
@@ -147,8 +147,8 @@ export default function ProductDetailPage() {
                                             key={size}
                                             onClick={() => setSelectedSize(size)}
                                             className={`px-6 py-3 rounded-lg border-2 font-semibold transition-all ${selectedSize === size
-                                                    ? 'border-black bg-black text-white'
-                                                    : 'border-gray-300 hover:border-gray-400'
+                                                ? 'border-black bg-black text-white'
+                                                : 'border-gray-300 hover:border-gray-400'
                                                 }`}
                                         >
                                             {size}
@@ -168,8 +168,8 @@ export default function ProductDetailPage() {
                                             key={color}
                                             onClick={() => setSelectedColor(color)}
                                             className={`px-6 py-3 rounded-lg border-2 font-semibold transition-all ${selectedColor === color
-                                                    ? 'border-black bg-black text-white'
-                                                    : 'border-gray-300 hover:border-gray-400'
+                                                ? 'border-black bg-black text-white'
+                                                : 'border-gray-300 hover:border-gray-400'
                                                 }`}
                                         >
                                             {color}
