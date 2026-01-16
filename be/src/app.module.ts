@@ -24,8 +24,9 @@ import { Product } from './products/entities/product.entity';
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
         entities: [User, Product],
-        synchronize: true, // Chỉ dùng trong development, tắt trong production
+        synchronize: true,
         logging: true,
+        ssl: configService.get('NODE_ENV') === 'production' ? { rejectUnauthorized: false } : undefined,
       }),
       inject: [ConfigService],
     }),
