@@ -1,17 +1,16 @@
+// main.ts
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
 
-async function bootstrap() {
+export default async function (req: any, res: any) {
   const app = await NestFactory.create(AppModule);
 
-  // Enable CORS for frontend
   app.enableCors({
-    origin: '*', // Allow all origins for development
+    origin: '*',
     credentials: true,
   });
 
-  // Enable global validation pipe
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -20,8 +19,8 @@ async function bootstrap() {
     }),
   );
 
-  const port = process.env.PORT ?? 3001;
-  await app.listen(port);
-  console.log(`🚀 Application is running on: http://localhost:${port}`);
+  await app.init();
+
+  const instance = app.getHttpAdapter().getInstance();
+  return instance(req, res);
 }
-bootstrap();
