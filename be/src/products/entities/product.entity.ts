@@ -1,13 +1,43 @@
+import {
+    Entity,
+    Column,
+    PrimaryGeneratedColumn,
+    CreateDateColumn,
+    UpdateDateColumn,
+} from 'typeorm';
+
+@Entity('products')
 export class Product {
+    @PrimaryGeneratedColumn()
     id: number;
+
+    @Column({ type: 'varchar', length: 255 })
     name: string;
+
+    @Column({ type: 'varchar', length: 50 })
     price: string;
+
+    @Column({ type: 'text' })
     image: string;
-    description?: string;
-    category?: string;
-    sizes?: string[];
-    colors?: string[];
-    stock?: number;
+
+    @Column({ type: 'text', nullable: true })
+    description: string;
+
+    @Column({ type: 'varchar', length: 100, nullable: true })
+    category: string;
+
+    @Column({ type: 'json', nullable: true })
+    sizes: string[];
+
+    @Column({ type: 'json', nullable: true })
+    colors: string[];
+
+    @Column({ type: 'int', default: 0 })
+    stock: number;
+
+    @CreateDateColumn()
     createdAt: Date;
+
+    @UpdateDateColumn()
     updatedAt: Date;
 }

@@ -29,6 +29,7 @@ export default function ProductCard({ id, name, price, image, delay = 0 }: Produ
                         src={image}
                         alt={name}
                         fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className={`object-contain p-3 transition-transform duration-500 ${isHovered ? 'scale-110 rotate-6' : 'scale-100 rotate-0'
                             }`}
                     />

@@ -124,15 +124,15 @@ export default function ProductDetailPage() {
 
                         {/* Name & Price */}
                         <div>
-                            <h1 className="text-4xl md:text-5xl font-black mb-4 gradient-text">
+                            <h1 className="text-4xl md:text-3xl font-black mb-4 gradient-text">
                                 {product.name}
                             </h1>
-                            <p className="text-3xl font-bold text-black">{product.price}</p>
+                            <p className="text-2xl text-black">{product.price}</p>
                         </div>
 
                         {/* Description */}
                         {product.description && (
-                            <p className="text-gray-600 leading-relaxed text-lg">
+                            <p className="text-gray-600 leading-relaxed text-md">
                                 {product.description}
                             </p>
                         )}

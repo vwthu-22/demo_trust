@@ -18,8 +18,8 @@ export default function Header() {
     return (
         <header
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
-                    ? 'bg-black/95 backdrop-blur-md shadow-lg py-2'
-                    : 'bg-black py-3'
+                ? 'bg-black/95 backdrop-blur-md shadow-lg py-2'
+                : 'bg-black py-3'
                 }`}
         >
             <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
@@ -30,6 +30,7 @@ export default function Header() {
                             src="https://1000logos.net/wp-content/uploads/2017/03/Nike-Logo.png"
                             alt="Nike Logo"
                             fill
+                            sizes="36px"
                             className="object-contain"
                             priority
                         />

@@ -1,47 +1,68 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import ProductCard from './ProductCard';
 
-const products = [
-    {
-        id: 1,
-        name: 'Nike Air Max 270',
-        price: '3.500.000₫',
-        image: 'https://static.nike.com/a/images/t_PDP_864_v1/f_auto,q_auto:eco/2b0b6e2c-2e2e-4e2e-8e2e-2e2e2e2e2e2e/air-max-270-shoes-KkLcGR.png',
-    },
-    {
-        id: 2,
-        name: 'Nike Air Force 1',
-        price: '2.900.000₫',
-        image: 'https://static.nike.com/a/images/t_PDP_864_v1/f_auto,q_auto:eco/1b2b6e2c-2e2e-4e2e-8e2e-2e2e2e2e2e2e/air-force-1-07-shoes-WrLlWX.png',
-    },
-    {
-        id: 3,
-        name: 'Nike Dunk Low',
-        price: '3.200.000₫',
-        image: 'https://static.nike.com/a/images/t_PDP_864_v1/f_auto,q_auto:eco/3b0b6e2c-2e2e-4e2e-8e2e-2e2e2e2e2e2e/dunk-low-shoes-7MmlFJ.png',
-    },
-    {
-        id: 4,
-        name: 'Nike React Infinity',
-        price: '4.100.000₫',
-        image: 'https://static.nike.com/a/images/t_PDP_864_v1/f_auto,q_auto:eco/i1-8d7a8350-0b5c-4d4e-8e2e-2e2e2e2e2e2e/react-infinity-run-flyknit-3-running-shoe-5MmlFJ.png',
-    },
-    {
-        id: 5,
-        name: 'Nike Blazer Mid',
-        price: '3.800.000₫',
-        image: 'https://static.nike.com/a/images/t_PDP_864_v1/f_auto,q_auto:eco/i1-5e7a8350-0b5c-4d4e-8e2e-2e2e2e2e2e2e/blazer-mid-77-vintage-shoe-nw30B2.png',
-    },
-    {
-        id: 6,
-        name: 'Nike Pegasus 40',
-        price: '3.600.000₫',
-        image: 'https://static.nike.com/a/images/t_PDP_864_v1/f_auto,q_auto:eco/i1-6e7a8350-0b5c-4d4e-8e2e-2e2e2e2e2e2e/pegasus-40-running-shoe-5MmlFJ.png',
-    },
-];
+interface Product {
+    id: number;
+    name: string;
+    price: string;
+    image: string;
+    description?: string;
+    category?: string;
+}
+
+const API_URL = 'http://127.0.0.1:3001/products';
 
 export default function Products() {
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            console.log('Fetching products from:', API_URL);
+            try {
+                const response = await fetch(API_URL);
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                console.log('Received products data:', data);
+                setProducts(Array.isArray(data) ? data : []);
+            } catch (err: any) {
+                console.error('Fetch error:', err);
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProducts();
+    }, []);
+
+    if (loading) {
+        return (
+            <section id="products" className="py-16 px-6 bg-gradient-to-b from-white to-gray-50">
+                <div className="max-w-7xl mx-auto text-center">
+                    <p className="text-xl text-gray-700">Loading products...</p>
+                </div>
+            </section>
+        );
+    }
+
+    if (error) {
+        return (
+            <section id="products" className="py-16 px-6 bg-gradient-to-b from-white to-gray-50">
+                <div className="max-w-7xl mx-auto text-center">
+                    <p className="text-xl text-red-600">Error: {error}</p>
+                    <p className="text-md text-gray-600">Please ensure the backend server is running at {API_URL}</p>
+                </div>
+            </section>
+        );
+    }
+
     return (
         <section id="products" className="py-16 px-6 bg-gradient-to-b from-white to-gray-50">
             <div className="max-w-7xl mx-auto">
