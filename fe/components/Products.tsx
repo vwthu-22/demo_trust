@@ -68,9 +68,9 @@ export default function Products() {
             <div className="max-w-7xl mx-auto">
                 {/* Section Header */}
                 <div className="text-center mb-6 animate-fadeIn">
-                    <h2 className="text-2xl md:text-3xl font-black mb-2 gradient-text">
+                    <p className="text-2xl md:text-3xl font-black mb-2 gradient-text">
                         Sản phẩm nổi bật
-                    </h2>
+                    </p>
                 </div>
 
                 {/* Products Grid */}
