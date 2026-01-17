@@ -11,16 +11,23 @@ async function createApp() {
     ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
     : ['http://localhost:3000']; // Fallback to localhost only
 
+  console.log('🔒 CORS Allowed Origins:', allowedOrigins);
+
   app.enableCors({
     origin: (origin, callback) => {
       // Allow requests with no origin (like mobile apps, Postman, curl)
-      if (!origin) return callback(null, true);
+      if (!origin) {
+        console.log('✅ Allowing request with no origin');
+        return callback(null, true);
+      }
 
       if (allowedOrigins.includes(origin)) {
+        console.log(`✅ Allowing CORS from: ${origin}`);
         callback(null, true);
       } else {
         console.warn(`⚠️  Blocked CORS request from origin: ${origin}`);
-        callback(new Error('Not allowed by CORS'));
+        // Don't throw error, just reject the request
+        callback(null, false);
       }
     },
     credentials: true,
