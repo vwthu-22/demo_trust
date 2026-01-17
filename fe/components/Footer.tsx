@@ -108,7 +108,7 @@ export default function Footer() {
                                     <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                     <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                 </svg>
-                                <span>123 Đường ABC, Quận 1, TP.HCM</span>
+                                <span>123 Đường PP, Quận Hà Đông, Hà Nội</span>
                             </li>
                             <li className="flex items-center gap-2">
                                 <svg
@@ -136,7 +136,7 @@ export default function Footer() {
                                 >
                                     <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                                 </svg>
-                                <span>contact@nikestore.vn</span>
+                                <span>contact@naisu.vn</span>
                             </li>
                         </ul>
                     </div>
@@ -145,7 +145,7 @@ export default function Footer() {
                 {/* Bottom Bar */}
                 <div className="border-t border-gray-800 pt-6 text-center">
                     <p className="text-gray-400 text-sm">
-                        © 2024 Nike Store. All rights reserved. Made with ❤️ in Vietnam
+                        © 2026 Naisu Store. All rights reserved. Made with love in Vietnam
                     </p>
                 </div>
             </div>
