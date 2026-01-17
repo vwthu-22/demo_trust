@@ -9,7 +9,7 @@ async function createApp() {
   // CORS Configuration - Security Enhancement
   const allowedOrigins = process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
-    : ['http://localhost:3000']; // Fallback to localhost only
+    : ['https://naisu-tau.vercel.app']; // TEMPORARY: Allow all origins if env var not set
 
   console.log('🔒 CORS Allowed Origins:', allowedOrigins);
 
@@ -18,6 +18,12 @@ async function createApp() {
       // Allow requests with no origin (like mobile apps, Postman, curl)
       if (!origin) {
         console.log('✅ Allowing request with no origin');
+        return callback(null, true);
+      }
+
+      // If wildcard is in allowed origins, allow all
+      if (allowedOrigins.includes('*')) {
+        console.log(`✅ Allowing CORS from: ${origin} (wildcard mode)`);
         return callback(null, true);
       }
 
