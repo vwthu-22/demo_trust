@@ -9,7 +9,7 @@ async function createApp() {
   // CORS Configuration - Security Enhancement
   const allowedOrigins = process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
-    : ['https://naisu-tau.vercel.app']; // TEMPORARY: Allow all origins if env var not set
+    : ['https://naisu-tau.vercel.app']; // TEMPORARY: Allow only naisu-tau.vercel.app
 
   console.log('🔒 CORS Allowed Origins:', allowedOrigins);
 

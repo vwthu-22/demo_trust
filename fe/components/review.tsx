@@ -5,7 +5,7 @@ import './review.css';
 
 // API Configuration
 const COMPANY_ID = 1;
-const API_BASE = 'https://trustify.io.vn';
+const API_BASE = '/api'; // Use local API proxy to avoid CORS
 
 interface CompanyRating {
     id: number;
