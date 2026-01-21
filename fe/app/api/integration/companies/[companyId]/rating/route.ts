@@ -43,9 +43,6 @@ export async function GET(
 ) {
     try {
         const { companyId } = params;
-        const { searchParams } = new URL(request.url);
-        const page = searchParams.get('page') || '0';
-        const size = searchParams.get('size') || '5';
 
         // Get authentication token
         const authToken = await getAuthToken();
@@ -59,7 +56,7 @@ export async function GET(
         }
 
         const response = await fetch(
-            `${API_BASE}/integration/companies/${companyId}/reviews?page=${page}&size=${size}`,
+            `${API_BASE}/integration/companies/${companyId}/rating`,
             {
                 method: 'GET',
                 headers,
@@ -70,7 +67,7 @@ export async function GET(
             const errorText = await response.text();
             console.error('Backend error:', errorText);
             return NextResponse.json(
-                { error: 'Failed to fetch reviews' },
+                { error: 'Failed to fetch rating' },
                 { status: response.status }
             );
         }
@@ -78,7 +75,7 @@ export async function GET(
         const data = await response.json();
         return NextResponse.json(data);
     } catch (error) {
-        console.error('Error proxying reviews request:', error);
+        console.error('Error proxying rating request:', error);
         return NextResponse.json(
             { error: 'Internal server error' },
             { status: 500 }
