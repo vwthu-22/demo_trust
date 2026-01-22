@@ -3,6 +3,76 @@
 import { useState, useEffect } from 'react';
 import './review.css';
 
+// Rating Colors Configuration
+// Centralized rating color management for consistent styling across the app
+
+// Star text colors based on rating value
+export const STAR_COLORS = {
+    excellent: 'text-[#5aa5df]',      // > 3.5 stars
+    good: 'text-yellow-500',          // 2.5 - 3.5 stars  
+    average: 'text-orange-500',       // 2 stars
+    poor: 'text-red-500',             // 1 star
+    empty: 'text-gray-300',           // unfilled stars
+};
+
+// Star fill colors (for filled stars with fill property)
+export const STAR_FILL_COLORS = {
+    excellent: 'fill-[#5aa5df] text-[#5aa5df]',
+    good: 'fill-yellow-500 text-yellow-500',
+    average: 'fill-orange-500 text-orange-500',
+    poor: 'fill-red-500 text-red-500',
+    empty: 'fill-gray-300 text-gray-300',
+};
+
+// Progress bar colors for rating breakdown (by star count)
+export const BAR_COLORS = {
+    5: 'bg-[#5aa5df]',
+    4: 'bg-blue-400',
+    3: 'bg-yellow-500',
+    2: 'bg-orange-500',
+    1: 'bg-red-500',
+};
+
+// Get star color based on rating value
+export const getStarColor = (rating: number): string => {
+    if (rating === 1) return STAR_COLORS.poor;
+    if (rating === 2) return STAR_COLORS.average;
+    if (rating > 2 && rating <= 3.5) return STAR_COLORS.good;
+    if (rating > 3.5) return STAR_COLORS.excellent;
+    return STAR_COLORS.empty;
+};
+
+// Get star fill color based on rating value (for icons with fill)
+export const getStarFillColor = (rating: number): string => {
+    if (rating <= 2) return STAR_FILL_COLORS.poor;
+    if (rating > 2 && rating <= 3.5) return STAR_FILL_COLORS.good;
+    if (rating > 3.5) return STAR_FILL_COLORS.excellent;
+    return STAR_FILL_COLORS.empty;
+};
+
+// Get individual star fill color based on star position and rating
+export const getIndividualStarColor = (starIndex: number, rating: number): string => {
+    // starIndex is 0-based (0-4 for 5 stars)
+    if (starIndex >= rating) {
+        return STAR_FILL_COLORS.empty;
+    }
+    // Use the overall rating to determine color for filled stars
+    return getStarFillColor(rating);
+};
+
+// Get progress bar color based on star count (1-5)
+export const getBarColor = (stars: number): string => {
+    return BAR_COLORS[stars as keyof typeof BAR_COLORS] || 'bg-gray-300';
+};
+
+// Get rating label based on rating value
+export const getRatingLabel = (rating: number): string => {
+    if (rating >= 4.5) return 'Excellent';
+    if (rating >= 3.5) return 'Great';
+    if (rating >= 2.5) return 'Average';
+    return 'Poor';
+};
+
 // API Configuration
 const COMPANY_ID = 1;
 const API_BASE = '/api'; // Use local API proxy to avoid CORS
@@ -24,6 +94,8 @@ interface Review {
     title: string;
     comment: string;
     userName: string;
+    userEmail?: string;
+    email?: string;
     createdAt: string;
     verified: boolean;
 }
@@ -55,6 +127,7 @@ const MOCK_REVIEWS: Review[] = [
         title: 'Excellent Service!',
         comment: 'I had a wonderful experience with this company. The customer service was outstanding and the product quality exceeded my expectations.',
         userName: 'John Smith',
+        userEmail: 'john.smith@example.com',
         createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
         verified: true,
     },
@@ -64,6 +137,7 @@ const MOCK_REVIEWS: Review[] = [
         title: 'Great Product',
         comment: 'Very satisfied with my purchase. Fast delivery and good quality. Would recommend to others.',
         userName: 'Sarah Johnson',
+        userEmail: 'sarah.j@example.com',
         createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
         verified: true,
     },
@@ -73,6 +147,7 @@ const MOCK_REVIEWS: Review[] = [
         title: 'Highly Recommended',
         comment: 'Best decision I made! The team was professional and responsive throughout the entire process.',
         userName: 'Michael Chen',
+        userEmail: 'mchen@example.com',
         createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
         verified: true,
     },
@@ -82,6 +157,7 @@ const MOCK_REVIEWS: Review[] = [
         title: 'Good Experience',
         comment: 'Overall a positive experience. Minor issues were resolved quickly by their support team.',
         userName: 'Emily Davis',
+        userEmail: 'emily.davis@example.com',
         createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
         verified: false,
     },
@@ -91,6 +167,7 @@ const MOCK_REVIEWS: Review[] = [
         title: 'Outstanding!',
         comment: 'Exceeded all my expectations. Will definitely be a returning customer!',
         userName: 'David Wilson',
+        userEmail: 'd.wilson@example.com',
         createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
         verified: true,
     },
@@ -169,15 +246,25 @@ export default function CustomerReviews() {
 
         const total = rating.totalReviews;
         return [
-            { label: 'Excellent', count: rating.fiveStarCount, percentage: (rating.fiveStarCount / total) * 100 },
-            { label: 'Great', count: rating.fourStarCount, percentage: (rating.fourStarCount / total) * 100 },
-            { label: 'Average', count: rating.threeStarCount, percentage: (rating.threeStarCount / total) * 100 },
-            { label: 'Poor', count: rating.twoStarCount, percentage: (rating.twoStarCount / total) * 100 },
-            { label: 'Bad', count: rating.oneStarCount, percentage: (rating.oneStarCount / total) * 100 },
+            { stars: 5, label: 'Excellent', count: rating.fiveStarCount, percentage: Math.round((rating.fiveStarCount / total) * 100) },
+            { stars: 4, label: 'Great', count: rating.fourStarCount, percentage: Math.round((rating.fourStarCount / total) * 100) },
+            { stars: 3, label: 'Average', count: rating.threeStarCount, percentage: Math.round((rating.threeStarCount / total) * 100) },
+            { stars: 2, label: 'Poor', count: rating.twoStarCount, percentage: Math.round((rating.twoStarCount / total) * 100) },
+            { stars: 1, label: 'Bad', count: rating.oneStarCount, percentage: Math.round((rating.oneStarCount / total) * 100) },
         ];
     };
 
-    const renderStars = (count: number, filled: boolean = true) => {
+    const renderStars = (count: number, rating?: number) => {
+        // Determine color based on rating value
+        const getStarColorHex = (rating: number): string => {
+            if (rating <= 2) return '#ef4444'; // red-500
+            if (rating > 2 && rating <= 3.5) return '#eab308'; // yellow-500
+            if (rating > 3.5) return '#5aa5df'; // blue
+            return '#5aa5df'; // default green
+        };
+
+        const starColor = rating ? getStarColorHex(rating) : '#5aa5df';
+
         return (
             <div className="stars">
                 {[...Array(5)].map((_, i) => (
@@ -187,7 +274,7 @@ export default function CustomerReviews() {
                         width="24"
                         height="24"
                         viewBox="0 0 24 24"
-                        fill={i < count ? '#00B67A' : '#dcdce6'}
+                        fill={i < count ? starColor : '#dcdce6'}
                     >
                         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                     </svg>
@@ -210,9 +297,15 @@ export default function CustomerReviews() {
             <div className="reviews-header">
                 <h1 className="reviews-title">CUSTOMER REVIEWS</h1>
 
-                <div className="rating-overview">
+                <div className="rating-overview flex justify-between">
+                    <div className="trustpilot-badge">
+                        <svg width="96" height="24" viewBox="0 0 96 24" fill="none">
+                            <path d="M12 2l2.4 7.4h7.8l-6.3 4.6 2.4 7.4L12 16.8l-6.3 4.6 2.4-7.4L1.8 9.4h7.8L12 2z" fill="#5aa5df" />
+                            <text x="28" y="16" fill="#191919" fontSize="12" fontWeight="600">Trustify</text>
+                        </svg>
+                    </div>
                     <div className="rating-stars-display">
-                        {renderStars(Math.round(rating.averageRating))}
+                        {renderStars(Math.round(rating.averageRating), rating.averageRating)}
                         <div className="rating-text">
                             <span className="rating-score">{rating.averageRating.toFixed(1)}</span>
                             <span className="rating-divider">/</span>
@@ -222,12 +315,6 @@ export default function CustomerReviews() {
                         </div>
                     </div>
 
-                    <div className="trustpilot-badge">
-                        <svg width="96" height="24" viewBox="0 0 96 24" fill="none">
-                            <path d="M12 2l2.4 7.4h7.8l-6.3 4.6 2.4 7.4L12 16.8l-6.3 4.6 2.4-7.4L1.8 9.4h7.8L12 2z" fill="#00B67A" />
-                            <text x="28" y="16" fill="#191919" fontSize="12" fontWeight="600">Trustify</text>
-                        </svg>
-                    </div>
                 </div>
             </div>
 
@@ -238,25 +325,27 @@ export default function CustomerReviews() {
                         <span className="count">{rating.totalReviews}</span>
                     </div>
 
-                    <div className="rating-distribution">
-                        {getRatingDistribution().map((item, index) => (
-                            <div key={index} className="rating-row">
-                                <input
-                                    type="checkbox"
-                                    id={`filter-${item.label}`}
-                                    checked={selectedFilter === item.label.toLowerCase() || selectedFilter === 'all'}
-                                    onChange={() => setSelectedFilter(item.label.toLowerCase())}
-                                />
-                                <label htmlFor={`filter-${item.label}`}>{item.label}</label>
-                                <div className="progress-bar-container">
-                                    <div
-                                        className="progress-bar-fill"
-                                        style={{ width: `${item.percentage}%` }}
+                    <div className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 mb-3 sm:mb-4">
+                        <div className="space-y-1.5 sm:space-y-2">
+                            {getRatingDistribution().map((filter) => (
+                                <label key={filter.stars} className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                        checked={selectedFilter === filter.label.toLowerCase() || selectedFilter === 'all'}
+                                        onChange={() => setSelectedFilter(filter.label.toLowerCase())}
                                     />
-                                </div>
-                                <span className="percentage">{Math.round(item.percentage)}%</span>
-                            </div>
-                        ))}
+                                    <span className="text-xs font-medium w-9 sm:w-10">{filter.stars}-star</span>
+                                    <div className="flex-1 bg-gray-200 rounded-full h-1.5">
+                                        <div
+                                            className={`h-1.5 rounded-full ${getBarColor(filter.stars)}`}
+                                            style={{ width: `${filter.percentage}%` }}
+                                        ></div>
+                                    </div>
+                                    <span className="text-xs text-gray-600 w-8 sm:w-10 text-right">{filter.percentage}%</span>
+                                </label>
+                            ))}
+                        </div>
                     </div>
                 </aside>
 
@@ -265,36 +354,59 @@ export default function CustomerReviews() {
                         <div className="loading">Loading reviews...</div>
                     ) : (
                         <>
-                            {reviews.map((review) => (
-                                <article key={review.id} className="review-card">
-                                    <div className="review-header">
-                                        <div className="review-author">
-                                            <span className="author-name">{review.userName}</span>
-                                            <span className="review-date">{formatDate(review.createdAt)}</span>
+                            {reviews.map((review) => {
+                                // Get user info from nested user object or direct fields
+                                const userName = review.userName || 'User';
+                                const userInitial = userName.charAt(0).toUpperCase() || 'U';
+                                const userEmail = review.userEmail || review.email || '';
+
+                                return (
+                                    <article key={review.id} className="border p-2.5 sm:p-3 border-gray-200 rounded-lg mb-4">
+                                        {/* Review Header with Avatar */}
+                                        <div className="flex items-start justify-between mb-2 sm:mb-3">
+                                            <div className="flex items-start gap-2 sm:gap-3">
+                                                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm sm:text-base flex-shrink-0">
+                                                    {userInitial}
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <h4 className="font-semibold text-gray-900 text-xs sm:text-sm">{userName}</h4>
+                                                    {userEmail && (
+                                                        <p className="text-xs text-gray-500 truncate">{userEmail}</p>
+                                                    )}
+                                                    <p className="text-xs text-gray-400 mt-0.5">{formatDate(review.createdAt)}</p>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div className="review-rating">
-                                        {renderStars(review.rating)}
-                                    </div>
-
-                                    {review.title && (
-                                        <h3 className="review-title">{review.title}</h3>
-                                    )}
-
-                                    <p className="review-comment">{review.comment}</p>
-
-                                    {review.verified && (
-                                        <div className="review-verified">
-                                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                                <circle cx="8" cy="8" r="8" fill="#191919" />
-                                                <path d="M6 8l2 2 4-4" stroke="white" strokeWidth="2" fill="none" />
-                                            </svg>
-                                            <span>Verified, collected by Naisu</span>
+                                        {/* Rating */}
+                                        <div className="flex mb-2 sm:mb-3">
+                                            {renderStars(review.rating, review.rating)}
                                         </div>
-                                    )}
-                                </article>
-                            ))}
+
+                                        {/* Review Content */}
+                                        {review.title && (
+                                            <h5 className="font-semibold text-gray-900 text-sm sm:text-base mb-1.5 sm:mb-2">
+                                                {review.title}
+                                            </h5>
+                                        )}
+
+                                        <p className="text-gray-700 text-xs sm:text-sm leading-relaxed whitespace-pre-line">
+                                            {review.comment}
+                                        </p>
+
+                                        {/* Verified Badge */}
+                                        {review.verified && (
+                                            <div className="flex items-center gap-1.5 mt-2 sm:mt-3 text-xs text-gray-600">
+                                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                                    <circle cx="8" cy="8" r="8" fill="#10b981" />
+                                                    <path d="M6 8l2 2 4-4" stroke="white" strokeWidth="2" fill="none" />
+                                                </svg>
+                                                <span className="font-medium">Verified Purchase</span>
+                                            </div>
+                                        )}
+                                    </article>
+                                );
+                            })}
 
                             {totalPages > 1 && (
                                 <div className="pagination">
@@ -322,7 +434,7 @@ export default function CustomerReviews() {
                         </>
                     )}
                 </main>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }
