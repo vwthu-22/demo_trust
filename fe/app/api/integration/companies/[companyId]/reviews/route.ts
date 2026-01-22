@@ -39,10 +39,10 @@ async function getAuthToken(): Promise<string | null> {
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { companyId: string } }
+    { params }: { params: Promise<{ companyId: string }> }
 ) {
     try {
-        const { companyId } = params;
+        const { companyId } = await params;
         const { searchParams } = new URL(request.url);
         const page = searchParams.get('page') || '0';
         const size = searchParams.get('size') || '5';
