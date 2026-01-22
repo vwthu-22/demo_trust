@@ -179,7 +179,7 @@ export default function CustomerReviews() {
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [loading, setLoading] = useState(true);
-    const [selectedFilter, setSelectedFilter] = useState<string>('all');
+    const [selectedFilters, setSelectedFilters] = useState<number[]>([]);
 
     // Fetch rating data
     useEffect(() => {
@@ -325,24 +325,30 @@ export default function CustomerReviews() {
                         <span className="count">{rating.totalReviews}</span>
                     </div>
 
-                    <div className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 mb-3 sm:mb-4">
-                        <div className="space-y-1.5 sm:space-y-2">
+                    <div className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 mb-3 sm:mb-4 shadow-sm">
+                        <div className="space-y-2">
                             {getRatingDistribution().map((filter) => (
-                                <label key={filter.stars} className="flex items-center gap-2 cursor-pointer">
+                                <label key={filter.stars} className="flex items-center gap-3 cursor-pointer group hover:bg-gray-50 p-1.5 -m-1.5 rounded-md transition-colors">
                                     <input
                                         type="checkbox"
-                                        className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                        checked={selectedFilter === filter.label.toLowerCase() || selectedFilter === 'all'}
-                                        onChange={() => setSelectedFilter(filter.label.toLowerCase())}
+                                        className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                        checked={selectedFilters.includes(filter.stars)}
+                                        onChange={() => {
+                                            setSelectedFilters(prev =>
+                                                prev.includes(filter.stars)
+                                                    ? prev.filter(s => s !== filter.stars)
+                                                    : [...prev, filter.stars]
+                                            );
+                                        }}
                                     />
-                                    <span className="text-xs font-medium w-9 sm:w-10">{filter.stars}-star</span>
-                                    <div className="flex-1 bg-gray-200 rounded-full h-1.5">
+                                    <span className="text-sm font-medium text-gray-700 min-w-[45px] whitespace-nowrap">{filter.stars} star</span>
+                                    <div className="flex-1 bg-gray-100 rounded-full h-2.5 overflow-hidden">
                                         <div
-                                            className={`h-1.5 rounded-full ${getBarColor(filter.stars)}`}
+                                            className={`h-full rounded-full transition-all duration-500 ease-out ${getBarColor(filter.stars)}`}
                                             style={{ width: `${filter.percentage}%` }}
                                         ></div>
                                     </div>
-                                    <span className="text-xs text-gray-600 w-8 sm:w-10 text-right">{filter.percentage}%</span>
+                                  
                                 </label>
                             ))}
                         </div>
@@ -354,59 +360,57 @@ export default function CustomerReviews() {
                         <div className="loading">Loading reviews...</div>
                     ) : (
                         <>
-                            {reviews.map((review) => {
-                                // Get user info from nested user object or direct fields
-                                const userName = review.userName || 'User';
-                                const userInitial = userName.charAt(0).toUpperCase() || 'U';
-                                const userEmail = review.userEmail || review.email || '';
+                            {reviews
+                                .filter(review => selectedFilters.length === 0 || selectedFilters.includes(review.rating))
+                                .map((review) => {
+                                    // Get user info from nested user object or direct fields
+                                    const userEmail = review.userEmail || review.email || review.userName || 'User';
+                                    const userInitial = userEmail.charAt(0).toUpperCase() || 'U';
 
-                                return (
-                                    <article key={review.id} className="border p-2.5 sm:p-3 border-gray-200 rounded-lg mb-4">
-                                        {/* Review Header with Avatar */}
-                                        <div className="flex items-start justify-between mb-2 sm:mb-3">
-                                            <div className="flex items-start gap-2 sm:gap-3">
-                                                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm sm:text-base flex-shrink-0">
-                                                    {userInitial}
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <h4 className="font-semibold text-gray-900 text-xs sm:text-sm">{userName}</h4>
-                                                    {userEmail && (
-                                                        <p className="text-xs text-gray-500 truncate">{userEmail}</p>
-                                                    )}
-                                                    <p className="text-xs text-gray-400 mt-0.5">{formatDate(review.createdAt)}</p>
+                                    return (
+                                        <article key={review.id} className="border p-2.5 sm:p-3 border-gray-200 rounded-lg mb-4">
+                                            {/* Review Header with Avatar */}
+                                            <div className="flex items-start justify-between mb-2 sm:mb-3">
+                                                <div className="flex items-start gap-2 sm:gap-3">
+                                                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm sm:text-base flex-shrink-0">
+                                                        {userInitial}
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                        <h4 className="font-semibold text-gray-900 text-xs sm:text-sm">{userEmail}</h4>
+                                                        <p className="text-xs text-gray-400 mt-0.5">{formatDate(review.createdAt)}</p>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        {/* Rating */}
-                                        <div className="flex mb-2 sm:mb-3">
-                                            {renderStars(review.rating, review.rating)}
-                                        </div>
-
-                                        {/* Review Content */}
-                                        {review.title && (
-                                            <h5 className="font-semibold text-gray-900 text-sm sm:text-base mb-1.5 sm:mb-2">
-                                                {review.title}
-                                            </h5>
-                                        )}
-
-                                        <p className="text-gray-700 text-xs sm:text-sm leading-relaxed whitespace-pre-line">
-                                            {review.comment}
-                                        </p>
-
-                                        {/* Verified Badge */}
-                                        {review.verified && (
-                                            <div className="flex items-center gap-1.5 mt-2 sm:mt-3 text-xs text-gray-600">
-                                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                                    <circle cx="8" cy="8" r="8" fill="#10b981" />
-                                                    <path d="M6 8l2 2 4-4" stroke="white" strokeWidth="2" fill="none" />
-                                                </svg>
-                                                <span className="font-medium">Verified Purchase</span>
+                                            {/* Rating */}
+                                            <div className="flex mb-2 sm:mb-3">
+                                                {renderStars(review.rating, review.rating)}
                                             </div>
-                                        )}
-                                    </article>
-                                );
-                            })}
+
+                                            {/* Review Content */}
+                                            {review.title && (
+                                                <h5 className="font-semibold text-gray-900 text-sm sm:text-base mb-1.5 sm:mb-2">
+                                                    {review.title}
+                                                </h5>
+                                            )}
+
+                                            <p className="text-gray-700 text-xs sm:text-sm leading-relaxed whitespace-pre-line">
+                                                {review.comment}
+                                            </p>
+
+                                            {/* Verified Badge */}
+                                            {review.verified && (
+                                                <div className="flex items-center gap-1.5 mt-2 sm:mt-3 text-xs text-gray-600">
+                                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                                        <circle cx="8" cy="8" r="8" fill="#10b981" />
+                                                        <path d="M6 8l2 2 4-4" stroke="white" strokeWidth="2" fill="none" />
+                                                    </svg>
+                                                    <span className="font-medium">Verified Purchase</span>
+                                                </div>
+                                            )}
+                                        </article>
+                                    );
+                                })}
 
                             {totalPages > 1 && (
                                 <div className="pagination">
